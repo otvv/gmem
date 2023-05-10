@@ -1,7 +1,13 @@
 # gmem
 simple memory reading/writing library for linux made in C++
 
+<details>
+<summary>todo:</summary>
+  
+    - c# version
+    - add Windows support
 
+</details>
 
 ***
 
