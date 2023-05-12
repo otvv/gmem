@@ -1,10 +1,10 @@
-# gmem
-simple memory reading/writing library for linux made in C++
+# `🧠 gmem`
+simple memory reading/writing library for linux made in C++ 
 
 <details>
 <summary>todo:</summary>
   
-    - c# version
+    - c# version (will be stored in another branch)
 
 </details>
 
