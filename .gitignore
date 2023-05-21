@@ -2,3 +2,7 @@
 build/
 src/build/
 src/.vscode/
+gmem-sharp/bin/
+gmem-sharp/obj/
+bin/
+obj/
