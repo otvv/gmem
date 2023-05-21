@@ -5,6 +5,8 @@ simple memory reading/writing library for linux made in C++ and C#
 <summary>todo:</summary>
   
 -   ~~c# version (will be stored in another branch)~~ ✅ (Check [here](https://github.com/otvv/gmem/pull/1))
+-   c version (will be stored in another branch)
+-   python version (will be stored in another branch)
 -   move c++ version to another branch
 
 </details>
