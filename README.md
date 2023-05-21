@@ -1,10 +1,11 @@
 # `🧠 gmem`
-simple memory reading/writing library for linux made in C++ 
+simple memory reading/writing library for linux made in C++ and C#
 
 <details>
 <summary>todo:</summary>
   
-    - c# version (will be stored in another branch)
+-   ~~c# version (will be stored in another branch)~~ ✅ (Check [here](https://github.com/otvv/gmem/pull/1))
+-   move c++ version to another branch
 
 </details>
 
