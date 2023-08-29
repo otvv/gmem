@@ -1,0 +1,185 @@
+// gmem - simple memory reading/writing library for linux in C
+//
+// by: otvv
+// license: MIT
+//
+
+#ifndef GMEM_H
+#define GMEM_H
+
+// std
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <inttypes.h>
+
+// linux
+#include <unistd.h>
+#include <sys/uio.h>
+
+#define MAX_BUFFER_SIZE 256
+
+struct gmem_proc_info
+{
+  int process_id;
+  uintptr_t base_address;
+}; // struct gmem_proc_info
+
+struct gmem_internal
+{
+  int composed_of_digits(const char *string)
+  {
+    size_t length = strlen(string);
+    for (size_t i = 0; i < length; ++i)
+    {
+      if (!isdigit(string[i]))
+      {
+        return 0;
+      }
+    }
+    return 1;
+  }
+} // struct gmem_internal
+
+struct gmem_proc
+{
+  int get_process_id(const char *process_name)
+  {
+    if (process_name == NULL || process_name[0] == '\0')
+    {
+      return -1;
+    }
+
+    DIR *dir = opendir("/proc/");
+    if (dir == NULL)
+    {
+      return -1;
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL)
+    {
+      if (!isdigit(entry->d_name[0]))
+      {
+        continue;
+      }
+
+      char path[MAX_BUFFER_SIZE];
+      snprintf(path, MAX_BUFFER_SIZE, "/proc/%s/comm", entry->d_name);
+
+      FILE *process_name_list = fopen(path, "r");
+      if (process_name_list != NULL)
+      {
+        char name_process_found[MAX_BUFFER_SIZE];
+        if (fgets(name_process_found, MAX_BUFFER_SIZE, process_name_list) != NULL)
+        {
+          name_process_found[strcspn(name_process_found, "\n")] = '\0'; // Remove newline character
+
+          if (strcmp(name_process_found, process_name) == 0)
+          {
+            gmem::proc_info::process_id = atoi(entry->d_name);
+            closedir(dir);
+            return gmem::proc_info::process_id;
+          }
+        }
+        fclose(process_name_list);
+      }
+    }
+    closedir(dir);
+
+    return -1;
+  }
+
+  uintptr_t get_base_addr(const char *module_name, int pid)
+  {
+    FILE *file_maps;
+    char cmd[MAX_BUFFER_SIZE];
+
+    snprintf(cmd, MAX_BUFFER_SIZE, "grep \"%s\" /proc/%i/maps | head -n 1 | cut -d \"-\" -f1", module_name, pid);
+
+    file_maps = popen(cmd, "r");
+    if (!file_maps)
+    {
+      pclose(file_maps);
+      return 0x0;
+    }
+
+    uintptr_t base_address;
+    if (fscanf(file_maps, "%" SCNxPTR, &base_address))
+    {
+      pclose(file_maps);
+      return base_address;
+    }
+
+    return 0x0;
+  }
+} // struct gmem_proc
+
+// expose structs
+extern struct gmem_proc_info gmem_proc_info;
+extern struct gmem_internal gmem_internal;
+extern struct gmem_proc gmem_proc;
+
+// macros to generate read/write functions
+#define READ_MEM_FUNC(type)                                              \
+  type read_mem_##type(uintptr_t address)                                \
+  {                                                                      \
+    type buffer;                                                         \
+    struct iovec local[1];                                               \
+    struct iovec remote[1];                                              \
+    local[0].iov_base = &buffer;                                         \
+    local[0].iov_len = sizeof(buffer);                                   \
+    remote[0].iov_base = (void *)address;                                \
+    remote[0].iov_len = sizeof(buffer);                                  \
+    process_vm_readv(gmem_proc_info.process_id, local, 1, remote, 1, 0); \
+    return buffer;                                                       \
+  }
+
+#define WRITE_MEM_FUNC(type)                                              \
+  void write_mem_##type(uintptr_t address, type value)                    \
+  {                                                                       \
+    struct iovec local[1];                                                \
+    struct iovec remote[1];                                               \
+    local[0].iov_base = &value;                                           \
+    local[0].iov_len = sizeof(value);                                     \
+    remote[0].iov_base = (void *)address;                                 \
+    remote[0].iov_len = sizeof(value);                                    \
+    process_vm_writev(gmem_proc_info.process_id, local, 1, remote, 1, 0); \
+  }
+
+  // generate primitive types read/write functions (add more data types as needed)
+  // the functions names would be something like this:
+  //
+  // read_mem_type
+  READ_MEM_FUNC(int)
+  READ_MEM_FUNC(bool)
+  READ_MEM_FUNC(uintptr_t)
+  READ_MEM_FUNC(void)
+  READ_MEM_FUNC(char)
+  READ_MEM_FUNC(double)
+  READ_MEM_FUNC(float)
+  //
+  // write_mem_type
+  WRITE_MEM_FUNC(int)
+  WRITE_MEM_FUNC(bool)
+  WRITE_MEM_FUNC(uintptr_t)
+  WRITE_MEM_FUNC(void)
+  WRITE_MEM_FUNC(char)
+  WRITE_MEM_FUNC(double)
+  WRITE_MEM_FUNC(float)
+
+  // example:
+  // 
+  // read: 
+  // uintptr_t address = 0xDEADBEEF;
+  // int curr_health = read_mem_int(address); // <- function generated by the macros defined above
+  // 
+  //
+  // write:
+  // uintptr_t address = 0xDEADBEEF;
+  // int new_health = 10;
+  // write_mem_int(address, new_health); // <- function generated by the macros defined above
+  //
+
+#endif // GMEM_H
