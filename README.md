@@ -17,7 +17,7 @@ More programming languages support is already planned. (`Python` and `C` for now
 <summary>todo:</summary>
   
 -   ~~c# version (will be stored in another branch)~~ ✅ (Check [here](https://github.com/otvv/gmem/pull/1))
--   ~~c version (will be stored in another branch)~~ ✅ (Check [here](https://github.com/otvv/gmem/pull/3)
+-   ~~c version (will be stored in another branch)~~ ✅ (Check [here](https://github.com/otvv/gmem/pull/3))
 -   python version (will be stored in another branch)
 -   create examples for the different languages that `gmem` has support
 -   add some images or code examples in this README
