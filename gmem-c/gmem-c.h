@@ -17,6 +17,8 @@
 // linux
 #include <unistd.h>
 #include <sys/uio.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 #define MAX_BUFFER_SIZE 256
 
@@ -40,7 +42,7 @@ struct gmem_internal
     }
     return 1;
   }
-} // struct gmem_internal
+}; // struct gmem_internal
 
 struct gmem_proc
 {
@@ -78,9 +80,9 @@ struct gmem_proc
 
           if (strcmp(name_process_found, process_name) == 0)
           {
-            gmem::proc_info::process_id = atoi(entry->d_name);
+            gmem_proc_info.process_id = atoi(entry->d_name);
             closedir(dir);
-            return gmem::proc_info::process_id;
+            return gmem_proc_info.process_id;
           }
         }
         fclose(process_name_list);
@@ -114,7 +116,7 @@ struct gmem_proc
 
     return 0x0;
   }
-} // struct gmem_proc
+}; // struct gmem_proc
 
 // expose structs
 extern struct gmem_proc_info gmem_proc_info;
@@ -152,22 +154,20 @@ extern struct gmem_proc gmem_proc;
   // the functions names would be something like this:
   //
   // read_mem_type
-  READ_MEM_FUNC(int)
-  READ_MEM_FUNC(bool)
-  READ_MEM_FUNC(uintptr_t)
-  READ_MEM_FUNC(void)
-  READ_MEM_FUNC(char)
-  READ_MEM_FUNC(double)
-  READ_MEM_FUNC(float)
+  READ_MEM_FUNC(int);
+  READ_MEM_FUNC(bool);
+  READ_MEM_FUNC(uintptr_t);
+  READ_MEM_FUNC(char);
+  READ_MEM_FUNC(double);
+  READ_MEM_FUNC(float);
   //
   // write_mem_type
-  WRITE_MEM_FUNC(int)
-  WRITE_MEM_FUNC(bool)
-  WRITE_MEM_FUNC(uintptr_t)
-  WRITE_MEM_FUNC(void)
-  WRITE_MEM_FUNC(char)
-  WRITE_MEM_FUNC(double)
-  WRITE_MEM_FUNC(float)
+  WRITE_MEM_FUNC(int);
+  WRITE_MEM_FUNC(bool);
+  WRITE_MEM_FUNC(uintptr_t);
+  WRITE_MEM_FUNC(char);
+  WRITE_MEM_FUNC(double);
+  WRITE_MEM_FUNC(float);
 
   // example:
   // 
