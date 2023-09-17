@@ -7,7 +7,7 @@ simple memory reading/writing library for linux
 
 You can see all available versions of `gmem`, by using the branch switcher in the repo or going into the _"Pull requests"_ tab.
 
-More programming languages support is already planned. (`Python` and `C` for now, but feel free to contribute with the language of your choice!)
+More programming languages support is already planned. (`Python` for now, but feel free to contribute with the language of your choice!)
 
 `gmem` can work with Proton/Wine processes too! I've tested `gmem` with some games such as `Apex Legends`, `CS:GO` (Windows version through wine), `GTA V` and many more.
 
