@@ -111,17 +111,21 @@ namespace gmem
     //
 
     template <typename T>
-    bool read_mem(const std::uintptr_t address, T& out_value)
+    T read_mem(std::uintptr_t address)
     {
+      static T buffer;
       struct iovec local[1];
       struct iovec remote[1];
 
-      local[0].iov_base = &out_value;
-      local[0].iov_len = sizeof(T);
-      remote[0].iov_base = reinterpret_cast<void*>(address);
-      remote[0].iov_len = sizeof(T);
+      local[0].iov_base = std::addressof(buffer);
+      local[0].iov_len = sizeof(buffer);
 
-      return process_vm_readv(proc_info::process_id, local, 1, remote, 1, 0) == sizeof(T);
+      remote[0].iov_base = reinterpret_cast<void *>(address);
+      remote[0].iov_len = sizeof(buffer);
+
+      process_vm_readv(proc_info::process_id, local, 1, remote, 1, 0);
+
+      return buffer;
     }
 
     //
